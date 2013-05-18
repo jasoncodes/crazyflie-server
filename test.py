@@ -15,8 +15,14 @@ from cfclient.utils.logconfigreader import LogVariable, LogConfig
 
 import json
 
+import socket
+
 class Main:
     def __init__(self):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.bind(('0.0.0.0', 0xf713))
+        self.peer_addr = None
+
         self.crazyflie = Crazyflie()
         cflib.crtp.init_drivers()
 
@@ -50,17 +56,17 @@ class Main:
         else:
             print "stabilizer not found in log TOC"
 
+        print "ready"
+
     def input_loop(self):
-        self.quit = False
-        while not self.quit:
+        while True:
+            data, self.peer_addr = self.socket.recvfrom(4096)
+
             try:
-                input = json.loads(raw_input())
+                input = json.loads(data)
             except ValueError:
-                print json.dumps({'debug': 'invalid JSON received'})
+                self.send_data({'debug': 'invalid JSON received'})
                 input = {}
-            except EOFError:
-                self.quit = True
-                break
 
             try:
                 point = input['point']
@@ -71,11 +77,16 @@ class Main:
                     point['thrust']
                 )
             except:
-                print json.dumps({'debug': 'error processing point data'})
+                self.send_data({'debug': 'error processing point data'})
 
         self.crazyflie.commander.send_setpoint(0, 0, 0, 0)
         time.sleep(0.1)
         self.crazyflie.close_link()
+
+    def send_data(self, data):
+        if self.peer_addr:
+            data = json.dumps(data)
+            self.socket.sendto(data + "\n", self.peer_addr)
 
     def stabilizerData(self, data):
         payload = {
@@ -86,7 +97,7 @@ class Main:
                 'thrust': data["stabilizer.thrust"]
             }
         }
-        print json.dumps(payload)
+        self.send_data(payload)
 
     def batteryData(self, data):
         payload = {
@@ -94,6 +105,6 @@ class Main:
                 'vbat': data['pm.vbat']
             }
         }
-        print json.dumps(payload)
+        self.send_data(payload)
 
 Main()
