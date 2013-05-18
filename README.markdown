@@ -1,6 +1,11 @@
 # Installation (Mac OS X)
 
-Follow the [installation instructions](http://wiki.bitcraze.se/projects:crazyflie:pc_utils:install#installing_on_mac_osx) on the Crazyflie wiki. You’ll also need to also install `libusb` with `brew install libusb`.
+Make sure you have Homebrew installed then run the following commands:
+
+```
+brew install python mercurial libusb pyqt
+pip install pyusb
+```
 
 Clone this project:
 
