@@ -28,3 +28,11 @@ Link the Crazyflie PC client library into the server project:
 cd ~/projects/crazyflie-server
 ln -s ../crazyflie-pc-client/lib
 ```
+
+## Contributors
+
+* Jason Weathered ([jasoncodes])
+* Odin Dutton ([twe4ked])
+
+[jasoncodes]: https://github.com/jasoncodes
+[twe4ked]: https://github.com/twe4ked
