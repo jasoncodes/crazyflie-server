@@ -126,9 +126,22 @@ class Main:
         self.crazyflie.close_link()
 
     def stabilizerData(self, data):
-        print "pitch=%.2f, roll=%.2f, yaw=%.2f, thrust=%d" % (data["stabilizer.pitch"], data["stabilizer.roll"], data["stabilizer.yaw"], data["stabilizer.thrust"])
+        payload = {
+            'stabilizer': {
+                'pitch': data["stabilizer.pitch"],
+                'roll': data["stabilizer.roll"],
+                'yaw': data["stabilizer.yaw"],
+                'thrust': data["stabilizer.thrust"]
+            }
+        }
+        print json.dumps(payload)
 
     def batteryData(self, data):
-        print "battery=%.2f" % (data['pm.vbat'])
+        payload = {
+            'pm': {
+                'vbat': data['pm.vbat']
+            }
+        }
+        print json.dumps(payload)
 
 Main()
