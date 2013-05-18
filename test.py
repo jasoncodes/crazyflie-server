@@ -22,6 +22,7 @@ class Main:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind(('0.0.0.0', 0xf713))
         self.peer_addr = None
+        self.last_peer_time = None
 
         self.crazyflie = Crazyflie()
         cflib.crtp.init_drivers()
@@ -61,6 +62,7 @@ class Main:
     def input_loop(self):
         while True:
             data, self.peer_addr = self.socket.recvfrom(4096)
+            self.last_peer_time = time.time()
 
             try:
                 input = json.loads(data)
@@ -91,8 +93,8 @@ class Main:
         self.crazyflie.close_link()
 
     def send_data(self, data):
-        if self.peer_addr:
-            data = json.dumps(data)
+        if self.last_peer_time and (time.time() - self.last_peer_time) < 3.0:
+            data = json.dumps(data, separators=(',',':'))
             self.socket.sendto(data + "\n", self.peer_addr)
 
     def stabilizerData(self, data):
