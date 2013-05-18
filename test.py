@@ -13,18 +13,6 @@ import cflib.crtp
 from cflib.crazyflie import Crazyflie
 from cfclient.utils.logconfigreader import LogVariable, LogConfig
 
-import termios
-old_settings = termios.tcgetattr(sys.stdin)
-
-import tty
-tty.setcbreak(sys.stdin)
-
-def cleanup():
-    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-
-import atexit
-atexit.register(cleanup)
-
 class Main:
     quit = False
     roll = 0
@@ -82,8 +70,12 @@ class Main:
             return False
 
     def input_loop(self):
-        while True:
-            str = sys.stdin.read(1)
+        while not self.quit:
+            try:
+                str = raw_input()
+            except EOFError:
+                self.quit = True
+                break
 
             if str == 'z':
                 self.quit = True
