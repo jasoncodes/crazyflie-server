@@ -61,7 +61,12 @@ class Main:
 
     def input_loop(self):
         while True:
-            data, self.peer_addr = self.socket.recvfrom(4096)
+            data, peer_addr = self.socket.recvfrom(4096)
+
+            if self.peer_addr != peer_addr:
+                print "Connected to %s:%d" % peer_addr
+
+            self.peer_addr = peer_addr
             self.last_peer_time = time.time()
 
             try:
@@ -97,7 +102,12 @@ class Main:
         self.crazyflie.close_link()
 
     def send_data(self, data):
-        if self.last_peer_time and (time.time() - self.last_peer_time) < 3.0:
+        if self.last_peer_time and (time.time() - self.last_peer_time) > 3.0:
+            print "Connection lost"
+            self.peer_addr = None
+            self.last_peer_time = None
+
+        if self.peer_addr:
             data = json.dumps(data, separators=(',',':'))
             self.socket.sendto(data + "\n", self.peer_addr)
 
