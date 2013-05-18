@@ -85,6 +85,10 @@ class Main:
                 except:
                     self.send_data({'debug': 'error processing point data'})
 
+            if 'ping' in input:
+                okay = True
+                self.send_data({'pong': input['ping']})
+
             if not okay:
                 self.send_data({'debug': 'no recognised commands'})
 
