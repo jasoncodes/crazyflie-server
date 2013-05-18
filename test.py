@@ -65,19 +65,26 @@ class Main:
             try:
                 input = json.loads(data)
             except ValueError:
-                self.send_data({'debug': 'invalid JSON received'})
                 input = {}
 
-            try:
+
+            okay = False
+
+            if 'point' in input:
+                okay = True
                 point = input['point']
-                self.crazyflie.commander.send_setpoint(
-                    point['roll'],
-                    point['pitch'],
-                    point['yaw'],
-                    point['thrust']
-                )
-            except:
-                self.send_data({'debug': 'error processing point data'})
+                try:
+                    self.crazyflie.commander.send_setpoint(
+                        point['roll'],
+                        point['pitch'],
+                        point['yaw'],
+                        point['thrust']
+                    )
+                except:
+                    self.send_data({'debug': 'error processing point data'})
+
+            if not okay:
+                self.send_data({'debug': 'no recognised commands'})
 
         self.crazyflie.commander.send_setpoint(0, 0, 0, 0)
         time.sleep(0.1)
